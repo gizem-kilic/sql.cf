@@ -1,0 +1,47 @@
+-- SQL query using subqueries to find out how many of the top 5 customers identified in Step 1 are based within each country
+
+SELECT 
+    D.country,                                            -- Country name
+    COUNT(DISTINCT A.customer_id) AS all_customer_count, -- Count of all customers in the country
+    COUNT(DISTINCT top_5.customer_id) AS top_customer_count  -- Count of top 5 customers in the country
+FROM 
+    customer A                                           -- Customer table
+JOIN 
+    address B ON A.address_id = B.address_id            -- Join with address table
+JOIN 
+    city C ON B.city_id = C.city_id                     -- Join with city table
+JOIN 
+    country D ON C.country_id = D.country_id            -- Join with country table
+LEFT JOIN (
+    -- Subquery to find the top 5 customers based on total payments
+    SELECT 
+        B.customer_id,                                   -- Customer ID
+        B.first_name,                                    -- Customer's first name
+        B.last_name,                                     -- Customer's last name
+        E.country,                                       -- Country of the customer
+        D.city,                                          -- City of the customer
+        SUM(A.amount) AS total_amount_paid              -- Total amount paid by the customer
+    FROM 
+        payment A                                        -- Payment table
+    INNER JOIN 
+        customer B ON A.customer_id = B.customer_id      -- Join with customer table
+    INNER JOIN 
+        address C ON B.address_id = C.address_id        -- Join with address table
+    INNER JOIN 
+        city D ON C.city_id = D.city_id                 -- Join with city table
+    INNER JOIN 
+        country E ON D.country_id = E.country_id         -- Join with country table
+    WHERE 
+        D.city IN ('Atlixco', 'Aurora', 'Xintai', 'Adoni', 
+                   'Dhule', 'Kurashiki', 'Pingxiang', 'Sivas', 
+                   'Celaya', 'So Leopoldo')               -- Filter for specific cities
+    GROUP BY 
+        B.customer_id, B.first_name, B.last_name, E.country, D.city  -- Group by customer details
+    ORDER BY 
+        total_amount_paid DESC                             -- Order by total amount paid in descending order
+    LIMIT 5                                              -- Limit to the top 5 customers
+) AS top_5 ON D.country = top_5.country                  -- Left join with the top 5 customers based on country
+GROUP BY 
+    D.country                                            -- Group by country
+ORDER BY 
+    top_customer_count DESC;                             -- Order by count of top customers in descending order
