@@ -1,35 +1,59 @@
-Here is an SQL Query with Common Table Expression 
+-- SQL Query using Common Table Expressions (CTEs) to calculate total payments and retrieve top customers
 
 WITH total_payments AS (
--- CTE to calculate total payments for each customer
-SELECT B.customer_id,
-B.first_name,
-B.last_name,
-E.country,
-D.city,
-SUM(A.amount) AS total_amount_paid
-FROM payment A
-INNER JOIN customer B ON A.customer_id = B.customer_id
-INNER JOIN address C ON B.address_id = C.address_id
-INNER JOIN city D ON C.city_id = D.city_id
-INNER JOIN country E ON D.country_id = E.country_id
-GROUP BY B.customer_id, B.first_name, B.last_name, E.country, D.city
+    -- CTE to calculate total payments for each customer
+    SELECT 
+        B.customer_id,               -- Customer ID
+        B.first_name,                -- Customer's first name
+        B.last_name,                 -- Customer's last name
+        E.country,                   -- Country of the customer
+        D.city,                      -- City of the customer
+        SUM(A.amount) AS total_amount_paid  -- Total amount paid by the customer
+    FROM 
+        payment A                    -- Payment table
+    INNER JOIN 
+        customer B ON A.customer_id = B.customer_id  -- Join with customer table
+    INNER JOIN 
+        address C ON B.address_id = C.address_id    -- Join with address table
+    INNER JOIN 
+        city D ON C.city_id = D.city_id              -- Join with city table
+    INNER JOIN 
+        country E ON D.country_id = E.country_id     -- Join with country table
+    GROUP BY 
+        B.customer_id, B.first_name, B.last_name, E.country, D.city
 ),
+
 top_5_customers AS (
--- CTE to retrieve the top 5 customers by total payments
-SELECT customer_id, first_name, last_name, country, total_amount_paid
-FROM total_payments
-ORDER BY total_amount_paid DESC
-LIMIT 5
+    -- CTE to retrieve the top 5 customers by total payments
+    SELECT 
+        customer_id, 
+        first_name, 
+        last_name, 
+        country, 
+        total_amount_paid
+    FROM 
+        total_payments
+    ORDER BY 
+        total_amount_paid DESC
+    LIMIT 5
 )
-SELECT D.country,
-COUNT(DISTINCT top_5.customer_id) AS top_customer_count -- Count of top 5
-customers in each country
-FROM customer A
-JOIN address B ON A.address_id = B.address_id
-JOIN city C ON B.city_id = C.city_id
-JOIN country D ON C.country_id = D.country_id
-LEFT JOIN top_5_customers top_5 ON D.country = top_5.country -- Left join to match
-countries with top 5 customers
-GROUP BY D.country
-ORDER BY top_customer_count DESC;
+
+-- Final selection to count top customers in each country
+SELECT 
+    D.country,
+    COUNT(DISTINCT top_5.customer_id) AS top_customer_count  -- Count of top 5 customers in each country
+FROM 
+    customer A
+JOIN 
+    address B ON A.address_id = B.address_id  -- Join with address table
+JOIN 
+    city C ON B.city_id = C.city_id            -- Join with city table
+JOIN 
+    country D ON C.country_id = D.country_id    -- Join with country table
+LEFT JOIN 
+    top_5_customers top_5 ON D.country = top_5.country  -- Left join to match countries with top 5 customers
+GROUP BY 
+    D.country
+ORDER BY 
+    top_customer_count DESC;  -- Order by the count of top customers in descending order
+
