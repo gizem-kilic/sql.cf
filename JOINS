@@ -1,0 +1,18 @@
+-- SQL Query using an inner join find the top 10 countries for Rockbuster based on customer numbers
+
+SELECT 
+    D.country,                             -- Country name
+    COUNT(A.customer_id) AS customer_count -- Count of customers in each country
+FROM 
+    customer A                             -- Customer table
+INNER JOIN 
+    address B ON A.address_id = B.address_id   -- Join with address table
+INNER JOIN 
+    city C ON B.city_id = C.city_id          -- Join with city table
+INNER JOIN 
+    country D ON C.country_id = D.country_id  -- Join with country table
+GROUP BY 
+    D.country                               -- Group by country
+ORDER BY 
+    customer_count DESC                     -- Order by customer count in descending order
+LIMIT 10;                                   -- Limit to the top 10 countries
