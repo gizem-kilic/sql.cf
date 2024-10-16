@@ -16,6 +16,9 @@ You’ve been hired as a data analyst by Rockbuster Stealth’s business intelli
 
 **Goal 3** Present your SQL results to your technical colleagues using Excel and by creating a data dictionary.
 
+[Example Tableau Public](https://public.tableau.com/app/profile/gizem.kilic/viz/WhichcountriesareRockbustercustomersbasedin_17267407994240/Sheet1)
+
+
 ## Contact
 
 For any questions, please contact [Gizem Kilic](mailto:gk.gizemkilic@gmail.com).
